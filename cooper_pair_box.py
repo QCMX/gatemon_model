@@ -1,5 +1,7 @@
 """
 Numerically solve the Hamiltonian of the Cooper Pair Box (CPB).
+
+See Koch et al.,  Phys Rev. A (2007) for background information.
 """
 
 import numpy as np
@@ -87,7 +89,7 @@ def cpb_hamiltonian_eigenstates(ng, EJoverEC, Npoints, Nstates):
     Nstates : int
         Number of eigenstates to return.
 
-    Returns:
+    Returns
     -------
     E : numpy.ndarray of shape (Nstates,)
         Energies E (sorted ascending) in units of EC.
@@ -199,8 +201,7 @@ def cpb_cavity_hamiltonian(EJoverEC, ng, ERoverEC, coverEC, J, N, npoints=500):
 
 def cpb_cavity_identify_energies(e, v):
     """
-    Identify energies of coupled system with state indices
-    of uncoupled system.
+    Identify energies of coupled system with state indices of uncoupled system.
 
     For example the qubit transition is :code:`y[1,0]-y[0,0]` with
     no photons in the cavity (y is the output of this function).
