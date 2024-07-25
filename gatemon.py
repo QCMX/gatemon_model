@@ -64,7 +64,7 @@ def qubit_arbitraryV_eigenstates(ng, Vfunc, Nstates, phi=None):
 
     # V as matrix operator: sum_m v_m |n+m><n|
     n = np.arange(Nstates) - Nstates//2
-    Vop = np.zeros((Nstates, Nstates))
+    Vop = np.zeros((Nstates, Nstates)).astype(complex)
     for i in range(Nstates):
         Vop[i] = vm[i+1:i+1+Nstates][::-1]
 
@@ -88,7 +88,7 @@ def qubit_arbitraryV_eigenstates(ng, Vfunc, Nstates, phi=None):
     if phi is not None:
         psi = np.sum(c.T[None,:,:] * np.exp(1j * n[None,None,:] * phi[:,None,None]), axis=-1) / (2*np.pi)**0.5
         return e, c, n, psi
-    return e, c, n, None
+    return e, c, n
 
 
 def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, maxsteps=20):
@@ -119,15 +119,15 @@ def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, max
 
     Returns
     -------
-    Nstates : int
+    Nstates : int or None
         Minimum matrix size for desired tolerance on qubit transition.
+        None if the tolerance could not be reached within `maxsteps`.
     """
     e = qubit_arbitraryV_eigenstates(ng, Vfunc, startNstates)[0]
     fq1 = e[1] - e[0]
     for i in range(1, maxsteps):
         e2 = qubit_arbitraryV_eigenstates(ng, Vfunc, startNstates + i*stepNstates)[0]
         fq2 = e2[1] - e2[0]
-        print(startNstates + i*stepNstates, fq2, fq1)
         if np.abs(fq2-fq1) <= rtol*np.abs(fq2):
             return startNstates + (i-1)*stepNstates
         fq1 = fq2
