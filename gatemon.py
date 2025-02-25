@@ -20,7 +20,12 @@ def qubit_arbitraryV_eigenstates(ng, Vfunc, Nstates, phi=None):
 
     Wavefunctions are normalized in the $2\pi$ interval:
 
-    $$\int_{-\pi}^\pi \psi^*(\varphi)\, \psi(\varphi)\, \mathrm \varphi = \sum_n c_n^* c_n = 1.$$
+    $$\int_{-\pi}^\pi \psi^*(\varphi)\, \psi(\varphi)\, \mathrm d \varphi = \sum_n c_n^* c_n = 1,$$
+
+    where $c_n$ are the coefficients of the wavefunction in charge space
+    (called :code:`jn` below).
+
+    $$\psi(\varphi) = \frac{1}{\sqrt{2\pi}} \sum_n c_n e^{i n \varphi}.$$
 
     Beware of truncation errors in the highest energy states, or for
     potentials with high freq. Fourier components.
@@ -136,7 +141,7 @@ def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, max
 
 def lowerABS(phi, NDelta, tau):
     r"""
-    Energy of lower Andreev bound state with homogeneous transmission.
+    Energy of lower Andreev bound state in atomic contact model with homogeneous transmission.
 
     Note that $E_J=\Delta N \tau / 4$. With effective
     number of channels $N$ and same transmission $\tau$
@@ -205,8 +210,8 @@ def qubit_cavity_hamiltonian(Ej, jn, Er, c, N):
     $a^\dagger$ are ladder operators of the cavity photon number.
 
     $g_{ij} = c \langle i | \hat n | j \rangle$ is the coupling.
-    The coupling prefactor :math:`c=2\beta e V_\text{rms}^0` determines
-    coupling strength independent of CPB states.
+    The prefactor :math:`c=2\beta e V_\text{rms}^0` determines
+    coupling strength.
 
     Parameters
     ----------
@@ -255,7 +260,7 @@ def qubit_cavity_hamiltonian(Ej, jn, Er, c, N):
     # Want matrix of (J*N) x (J*N)
     H = np.moveaxis(H, [0,1,2,3], [0,2,1,3]).reshape(J*N,J*N)
 
-    assert np.allclose(0, np.conj(H).T - H), "H should be hermitian"
+    assert np.allclose(0, np.conj(H).T - H), "H should be Hermitian"
     r = np.linalg.eig(H)
     e = r.eigenvalues.real
     v = r.eigenvectors.real
