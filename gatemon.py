@@ -159,7 +159,7 @@ def lowerABS(phi, NDelta, tau):
     return -NDelta * np.sqrt(1 - tau * np.sin(phi/2)**2)
 
 
-def gatemon_lowerABS_eigenstates(ng, NDelta, tau, Nstates, phi=None):
+def gatemon_lowerABS_eigenstates(ng, NDelta, tau, Nstates=None, phi=None):
     r"""
     Eigenenergies and states of gatemon with homegeneous transmission.
 
@@ -169,20 +169,26 @@ def gatemon_lowerABS_eigenstates(ng, NDelta, tau, Nstates, phi=None):
     ----------
     ng : float
         Offset charge.
-    EJoverEC : float
-        Josephson energy in units of charging energy.
+    NDelta : float
+        Gap times effective channel number.
     tau : float
         Transmission, same for all channels.
-    Nstates : int
+    Nstates : int or None
         Size of Hamiltonian to solve numerically.
+        If None, uses :code:`estimate_minNstates()`.
     phi : numpy.ndarray or None
         Points to evaluate wavefunction at.
+        Default is None.
 
     Returns
     -------
     Same as :code:`qubit_arbitraryV_eigenstates()`.
     """
     Vfunc = lambda phi: lowerABS(phi, NDelta, tau)
+    if Nstates is None:
+        Nstates = estimate_minNstates(ng, Vfunc)
+        if Nstates is None:
+            raise Exception("Could not determine Nstates automatically.")
     return qubit_arbitraryV_eigenstates(ng, Vfunc, Nstates, phi)
 
 
