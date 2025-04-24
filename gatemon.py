@@ -96,7 +96,7 @@ def qubit_arbitraryV_eigenstates(ng, Vfunc, Nstates, phi=None):
     return e, c, n
 
 
-def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, maxsteps=20):
+def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, maxsteps=20, testfunc=None):
     r"""
     Estimate minimum matrix size needed for accurate calculation of qubit transition (E01).
 
@@ -121,6 +121,10 @@ def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, max
     maxsteps : int
         Maximum number of tries. If the desired tolerance is not
         reached, returns None.
+    testfunc : np.ndarray -> float
+        Function to test for relative change.
+        If None, uses qubit frequency (difference between lowest two energies).
+        Default None.
 
     Returns
     -------
@@ -128,14 +132,16 @@ def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, max
         Minimum matrix size for desired tolerance on qubit transition.
         None if the tolerance could not be reached within `maxsteps`.
     """
+    if testfunc is None:
+        testfunc = lambda e: e[1] - e[0]
     e = qubit_arbitraryV_eigenstates(ng, Vfunc, startNstates)[0]
-    fq1 = e[1] - e[0]
+    v1 = testfunc(e)
     for i in range(1, maxsteps):
         e2 = qubit_arbitraryV_eigenstates(ng, Vfunc, startNstates + i*stepNstates)[0]
-        fq2 = e2[1] - e2[0]
-        if np.abs(fq2-fq1) <= rtol*np.abs(fq2):
+        v2 = testfunc(e2)
+        if np.abs(v2-v1) <= rtol*np.abs(v2):
             return startNstates + (i-1)*stepNstates
-        fq1 = fq2
+        v1 = v2
     return None
 
 
