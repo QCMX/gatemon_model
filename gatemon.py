@@ -96,6 +96,39 @@ def qubit_arbitraryV_eigenstates(ng, Vfunc, Nstates, phi=None):
     return e, c, n
 
 
+def charge_transitions(jn, c=1):
+    r"""Matrix elements for transitions excited via qubit charge (ie capacitively).
+
+    $g_{ij} = c \langle i | \hat n | j \rangle$
+
+    The prefactor :math:`c=2\beta e V_\text{rms}^0` determines
+    coupling strength.
+
+    Parameters
+    ----------
+    jn : numpy.nparray of shape (M, J)
+        Qubit wavefunction in charge basis.
+        Assumes charge indices :code:`n=range(M)-M//2`.
+        Thus compatible with output of :code:`qubit_arbitraryV_eigenstates()`.
+    c : float
+        Coupling prefactor.
+
+    Returns
+    -------
+    g : numpy.ndarray of shape (J, J)
+        Coupling matrix elements. Is a Hermitian matrix.
+        In same units as c.
+    """
+    J = jn.shape[1]
+    n = np.arange(jn.shape[0]) - jn.shape[0]//2
+    # g_{ij} = <i| n |j>
+    # g = g_{ij} |i><j|
+    charge_coupling = np.array([[np.sum(np.conj(jn[:,i])*n*jn[:,j]) for j in range(J)] for i in range(J)])
+    # Discard non-hermitian part arising due to numerical errors
+    g = c * (charge_coupling + np.conj(charge_coupling).T) / 2
+    return g
+
+
 def estimate_minNstates(ng, Vfunc, rtol=1e-5, startNstates=4, stepNstates=2, maxsteps=20, testfunc=None):
     r"""
     Estimate minimum matrix size needed for accurate calculation of qubit transition (E01).
